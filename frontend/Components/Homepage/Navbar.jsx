@@ -1,21 +1,29 @@
-'use client'
-import { useState } from "react";
-
-const UserIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const LogInIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-  </svg>
-);
-
+'use client';
+import { useState, useEffect } from "react";
+// Using lucide-react for icons for consistency and ease of use
+import { User, LogIn, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false); // New state for scroll effect
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if the scroll position is more than a certain threshold (e.g., 50px)
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const mainNavLinks = [
     { href: "#platform", label: "Platform" },
@@ -26,17 +34,19 @@ const Navbar = () => {
   ];
 
   const rightNavLinks = [
-    { href: "#for-learners", label: "For Learners", icon: UserIcon },
-    { href: "#login", label: "Log In", icon: LogInIcon },
+    { href: "#for-learners", label: "For Learners", icon: User },
+    { href: "#login", label: "Log In", icon: LogIn },
   ];
 
   return (
     <nav
-      className="sticky top-0 z-50 bg-background "
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
+      }`} // Conditional styling for blur and background
       aria-label="Main"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between py-4"> {/* Increased py for height */}
           {/* Left Side: Logo */}
           <div className="flex-shrink-0 select-none">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -51,7 +61,7 @@ const Navbar = () => {
               <a
                 key={item.href}
                 href={item.href}
-                className="relative group font-medium text-foreground transition-colors duration-200 hover:text-foreground"
+                className="relative group font-medium text-slate-700 transition-colors duration-200 hover:text-blue-600" // Text color adjustments
               >
                 <span className="inline-block">{item.label}</span>
                 <span
@@ -62,14 +72,15 @@ const Navbar = () => {
             ))}
           </div>
 
+          {/* Right Side: Action Links and Button */}
           <div className="hidden lg:flex items-center gap-7">
             {rightNavLinks.map((item) => (
-               <a
+              <a
                 key={item.href}
                 href={item.href}
-                className="relative group font-medium text-foreground transition-colors duration-200 hover:text-foreground flex items-center gap-1"
+                className="relative group font-medium text-slate-700 transition-colors duration-200 hover:text-blue-600 flex items-center gap-1" // Text color adjustments
               >
-                {item.icon && <item.icon className="w-4 h-4" />} {/* Render icon if it exists */}
+                {item.icon && <item.icon className="w-4 h-4" />}
                 <span className="inline-block">{item.label}</span>
                 <span
                   aria-hidden="true"
@@ -80,55 +91,53 @@ const Navbar = () => {
             <a
               href="#book-demo"
               aria-label="Book a demo"
-              className="inline-flex items-center rounded-md bg-blue-600 px-5 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-700"
+              className="inline-flex items-center rounded-md bg-blue-600 px-5 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md hover:shadow-lg" // Added shadow
             >
               Book a Demo
             </a>
           </div>
 
+          {/* Mobile Menu Button */}
           <div className="lg:hidden">
             <button
               type="button"
               onClick={() => setIsMenuOpen((v) => !v)}
-              className="p-2 rounded-md text-foreground hover:text-blue-600 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 transition-colors"
+              className="p-2 rounded-md text-slate-700 hover:text-blue-600 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 transition-colors"
               aria-controls="mobile-menu"
               aria-expanded={isMenuOpen}
               aria-label="Toggle menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {isMenuOpen ? (
+                <X className="w-6 h-6" /> // Using Lucide X icon
+              ) : (
+                <Menu className="w-6 h-6" /> // Using Lucide Menu icon
+              )}
             </button>
           </div>
         </div>
 
+        {/* Mobile Menu Content */}
         {isMenuOpen && (
-          <div id="mobile-menu" className="lg:hidden py-3 border-t border-border">
+          <div id="mobile-menu" className="lg:hidden py-3 border-t border-slate-200"> {/* Adjusted border color */}
             <div className="flex flex-col gap-1">
               {[
                 ...mainNavLinks,
-                ...rightNavLinks.map(item => ({ ...item, label: item.label, icon: undefined })) 
+                ...rightNavLinks.map(item => ({ ...item, icon: undefined })) // Remove icons for consistency in mobile links
               ].map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-2 rounded-md font-medium text-foreground transition-colors duration-200 hover:bg-foreground/[0.04] flex items-center gap-2"
+                  className="px-4 py-2 rounded-md font-medium text-slate-700 transition-colors duration-200 hover:bg-blue-50 flex items-center gap-2" // Text and hover adjustments
                 >
-                  {item.icon && <item.icon className="w-5 h-5" />} 
                   {item.label}
                 </a>
               ))}
-              
               <div className="px-4 pt-3">
                 <a
                   href="#book-demo"
                   aria-label="Book a demo"
-                  className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-700"
+                  className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-700 shadow-md"
                 >
                   Book a Demo
                 </a>

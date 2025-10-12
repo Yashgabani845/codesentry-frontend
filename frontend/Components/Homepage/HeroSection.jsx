@@ -10,9 +10,10 @@ export default function HeroSection() {
     setMounted(true);
   }, []);
 
+  // The custom font class "font-brown" is no longer needed
+  // as DM Sans is inherited from the root layout.
   return (
-    // Applied BrownLLWeb font class to the section
-    <section className="font-brown relative flex items-center overflow-hidden bg-gradient-to-br from-white to-sky-50">
+    <section className="relative flex items-center overflow-hidden bg-gradient-to-br from-white to-sky-50">
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
 
       <div className="container mx-auto px-6 lg:px-12 py-16 md:py-20">
@@ -42,39 +43,13 @@ export default function HeroSection() {
           </div>
           <div className={`relative transition-all duration-1000 delay-300 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <img
-              src="./images/hero_section.png"
+              src="/images/hero_section.png" // Using absolute path from public folder
               alt="Interactive dashboard showing technical assessment analytics, coding challenges, and real-time candidate evaluation metrics"
               className="w-full h-auto animate-float"
             />
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        /* Implemented BrownLLWeb font family */
-        .font-brown {
-          font-family: BrownLLWeb, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        }
-        .bg-grid-pattern {
-          background-image:
-            linear-gradient(to right, #e2e8f0 1px, transparent 1px),
-            linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
-          background-size: 40px 40px;
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-12px);
-          }
-        }
-
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-      `}</style>
     </section>
   );
 }
