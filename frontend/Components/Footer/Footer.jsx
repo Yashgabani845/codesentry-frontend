@@ -17,7 +17,7 @@ export default function Footer() {
                 alt="CodeSentry Logo" 
                 width={150} 
                 height={40} 
-                className="h-8 w-auto"ed
+                className="h-8 w-auto"
               />
              
             </Link>

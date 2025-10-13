@@ -1,5 +1,4 @@
-// src/app/page.js
-
+'use client'
 import Image from "next/image"; 
 import Navbar from "../../Components/Homepage/Navbar";
 import HeroSection from "../../Components/Homepage/HeroSection";

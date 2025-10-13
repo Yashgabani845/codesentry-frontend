@@ -37,28 +37,6 @@ export const metadata = {
   applicationName: "CodeSentry",
   viewport: "width=device-width, initial-scale=1",
   themeColor: "#1565c0",
-  openGraph: {
-    title: "CodeSentry - Practice, Learn & Master Coding Skills",
-    description: "Prepare for coding interviews and master algorithms with CodeSentry. Solve problems, take assessments, and improve daily.",
-    url: "https://codesentry.in", 
-    siteName: "CodeSentry",
-    images: [
-      {
-        url: "https://codesentry.com/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "CodeSentry - Coding Platform",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CodeSentry - Practice, Learn & Master Coding Skills",
-    description: "Prepare for coding interviews and improve your programming skills with CodeSentry.",
-    creator: "@YourTwitterHandle",
-    images: ["https://codesentry.com/og-image.png"], 
-  },
+ 
 };
 
