@@ -4,9 +4,8 @@ import Navbar from '../../../../Components/Homepage/Navbar';
 import Footer from '../../../../Components/Footer/Footer';
 import Login from '../../../../Components/Auth/UserAuth/Login';
 import Signup from '../../../../Components/Auth/UserAuth/Signup';
-import { onAuthStateChanged, firebaseSignOut, auth } from '../../../config/firebaseAuth'; // Adjust path as needed
+import { onAuthStateChanged, firebaseSignOut, auth } from '../../../config/firebaseAuth';
 
-// This component now manages the entire authentication lifecycle and corresponding UI.
 export default function AuthPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,25 +13,42 @@ export default function AuthPage() {
 
   // Listen for Firebase authentication state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        // Save user info from localStorage if already there
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
     const { success, error } = await firebaseSignOut();
     if (success) {
+      localStorage.removeItem('user'); // remove stored user info
       console.log('Signed out successfully');
+      setUser(null);
+      setShowLogin(true);
     } else {
       console.error('Sign out error:', error);
     }
   };
 
-  // Show a loading spinner while checking for a user session
+  // Store user info after login/signup
+  const handleUserLogin = (userData) => {
+    const { id, name, email, role } = userData;
+    const userToStore = { id, name, email, role };
+    localStorage.setItem('user', JSON.stringify(userToStore));
+    setUser(userToStore);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -44,7 +60,6 @@ export default function AuthPage() {
     );
   }
 
-  // If a user is logged in, show the Dashboard view
   if (user) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-100">
@@ -67,11 +82,12 @@ export default function AuthPage() {
               <p className="text-gray-600">
                 You are logged in as: <span className="font-medium">{user.email}</span>
               </p>
-              {user.displayName && (
-                <p className="text-gray-600 mt-2">
-                  Name: <span className="font-medium">{user.displayName}</span>
-                </p>
-              )}
+              <p className="text-gray-600 mt-2">
+                Name: <span className="font-medium">{user.name}</span>
+              </p>
+              <p className="text-gray-600 mt-2">
+                Role: <span className="font-medium">{user.role}</span>
+              </p>
             </div>
           </div>
         </main>
@@ -79,20 +95,24 @@ export default function AuthPage() {
       </div>
     );
   }
-  
-  // If no user is logged in, show the Login/Signup forms
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
         {showLogin ? (
-          <Login onSwitchToSignup={() => setShowLogin(false)} />
+          <Login
+            onSwitchToSignup={() => setShowLogin(false)}
+            onLoginSuccess={handleUserLogin} // pass user info after login
+          />
         ) : (
-          <Signup onSwitchToLogin={() => setShowLogin(true)} />
+          <Signup
+            onSwitchToLogin={() => setShowLogin(true)}
+            onSignupSuccess={handleUserLogin} // pass user info after signup
+          />
         )}
       </main>
       <Footer />
     </div>
   );
 }
-

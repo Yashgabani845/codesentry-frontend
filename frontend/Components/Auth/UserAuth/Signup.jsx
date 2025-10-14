@@ -4,9 +4,9 @@ import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Rocket, ShieldCheck } from 'lucide-react';
 
 // Import the Firebase authentication functions
-import { signupWithEmail, signInWithGoogle } from '../../../src/config/firebaseAuth'; // Adjust this path if needed
+import { signupWithEmail, signInWithGoogle } from "../../../src/config/firebaseAuth";
 
-export default function Signup({ onSwitchToLogin }) {
+export default function Signup({ onSwitchToLogin, onSignupSuccess }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,32 +41,22 @@ export default function Signup({ onSwitchToLogin }) {
       setValidationErrors((prev) => ({ ...prev, confirmPassword: '' }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const passError = validatePassword(password);
-    if (passError) {
-      setValidationErrors((prev) => ({ ...prev, password: passError }));
-      return;
-    }
-
     if (password !== confirmPassword) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        confirmPassword: 'Passwords do not match',
-      }));
+      setValidationErrors({ confirmPassword: 'Passwords do not match' });
       return;
     }
 
     setLoading(true);
 
     try {
-      const { success, error: authError } = await signupWithEmail(email, password, fullName);
-      if (!success) {
-        throw new Error(authError || 'Failed to create an account.');
-      }
+      const res = await signupWithEmail(fullName, email, password);
+      if (!res.success) throw new Error(res.error);
+
+      if (onSignupSuccess) onSignupSuccess(res.user);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -79,19 +69,17 @@ export default function Signup({ onSwitchToLogin }) {
     setLoading(true);
 
     try {
-      const { success, error: authError } = await signInWithGoogle();
-       if (!success) {
-        if (authError && authError.code !== 'auth/popup-closed-by-user') {
-          throw new Error(authError.message || 'Failed to sign up with Google.');
-        }
-      }
+      const res = await signInWithGoogle();
+      if (!res.success) throw new Error(res.error);
+
+      if (onSignupSuccess) onSignupSuccess(res.user);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen flex">
             {/* Left Side - Branding with Background Image and Icons */}

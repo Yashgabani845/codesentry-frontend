@@ -1,62 +1,95 @@
-// src/utils/firebaseAuth.js
 import {
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut,
-    GoogleAuthProvider,
-    signInWithPopup,
-    onAuthStateChanged // Import onAuthStateChanged for listener
-  } from 'firebase/auth';
-  import { auth } from './firebase'; // Import the initialized auth instance
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "firebase/auth";
+import { auth } from "./firebase";
+
+const googleProvider = new GoogleAuthProvider();
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+// ================= Email Signup
+export const signupWithEmail = async (name, email, password, role="candidate") => {
+  try {
   
-  const googleProvider = new GoogleAuthProvider();
-  
-  export const loginWithEmail = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // You can get the JWT token if needed: await userCredential.user.getIdToken();
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-  
-  export const signupWithEmail = async (email, password) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // You can get the JWT token if needed: await userCredential.user.getIdToken();
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-  
-  export const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      // The IdToken can be obtained here if you need to send it to your backend
-      // const idToken = await result.user.getIdToken();
-      return { success: true, user: result.user };
-    } catch (error) {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData?.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      return { success: false, error: errorMessage, errorCode };
-    }
-  };
-  
-  export const firebaseSignOut = async () => {
-    try {
-      await signOut(auth);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
-  
-  // Export the listener for App.js
-  export { onAuthStateChanged, auth };
+    const res = await fetch(`${BACKEND_URL}/api/auth/email-signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, role })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Signup failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    return { success: true, user: data.user };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// ================= Email Login
+export const loginWithEmail = async (email, password) => {
+  try {
+    console.log("while login" , email , password)
+    const res = await fetch(`${BACKEND_URL}/api/auth/email-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    return { success: true, user: data.user };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// ================= Google Login/Signup
+export const signInWithGoogle = async (role="candidate") => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+
+    const res = await fetch(`${BACKEND_URL}/api/auth/firebase-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken, role })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Google login failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    return { success: true, user: data.user };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// ================= Sign Out
+export const firebaseSignOut = async () => {
+  try {
+    await signOut(auth);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export { onAuthStateChanged, auth };
