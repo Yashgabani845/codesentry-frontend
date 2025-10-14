@@ -37,7 +37,7 @@ const rightNavLinks = [
         icon: LogIn,
         dropdown: [
             { href: "/auth/candidatelogin", label: "For Candidates", icon: User },
-            { href: "#login-company", label: "For Companies", icon: Briefcase },
+            { href: "/auth/comapnyauth", label: "For Companies", icon: Briefcase },
         ]
     },
 ];

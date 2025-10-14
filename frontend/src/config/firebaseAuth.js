@@ -1,6 +1,4 @@
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
@@ -79,6 +77,45 @@ export const signInWithGoogle = async (role="candidate") => {
     return { success: false, error: error.message };
   }
 };
+
+export const signupCompany = async (name, email, password, companyName, companyWebsite, companyDescription) => {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/auth/company-signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, companyName, companyWebsite, companyDescription })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Signup failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    return { success: true, user: data.user };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const loginCompany = async (email, password) => {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/auth/company-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Login failed");
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    return { success: true, user: data.user };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
 
 // ================= Sign Out
 export const firebaseSignOut = async () => {
